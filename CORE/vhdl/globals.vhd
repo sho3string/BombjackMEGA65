@@ -143,48 +143,94 @@ constant C_CRTROMS_MAN           : crtrom_buf_array := ( x"EEEE", x"EEEE",
 --               b) Don't forget to zero-terminate each of your substrings of C_CRTROMS_AUTO_NAMES by adding "& ENDSTR;"
 --               c) Don't forget to finish the C_CRTROMS_AUTO array with x"EEEE"
 
-constant C_DEV_GAL_CPU_ROM1           : std_logic_vector(15 downto 0) := x"0100";     -- GALAGA CPU1 ROM 
-constant C_DEV_GAL_CPU_ROM2           : std_logic_vector(15 downto 0) := x"0101";     -- GALAGA CPU2 ROM 
-constant C_DEV_GAL_CPU_ROM3           : std_logic_vector(15 downto 0) := x"0102";     -- GALAGA CPU3 ROM 
-constant C_DEV_GAL_GFX1               : std_logic_vector(15 downto 0) := x"0103";     -- GALAGA BG GFX
-constant C_DEV_GAL_GFX2               : std_logic_vector(15 downto 0) := x"0104";     -- GALAGA SPRITE GFX
-constant C_DEV_GAL_MCU1               : std_logic_vector(15 downto 0) := x"0105";     -- MCU1 - 51xx
-constant C_DEV_GAL_MCU2               : std_logic_vector(15 downto 0) := x"0106";     -- MCU2 - 54XX
+-- BOMBJACK MAINCPU
+constant C_DEV_BJ_CPU1_ROM1           : std_logic_vector(15 downto 0) := x"0100";     
+constant C_DEV_BJ_CPU1_ROM2           : std_logic_vector(15 downto 0) := x"0101";    
+constant C_DEV_BJ_CPU1_ROM3           : std_logic_vector(15 downto 0) := x"0102";
+constant C_DEV_BJ_CPU1_ROM4           : std_logic_vector(15 downto 0) := x"0103";
+constant C_DEV_BJ_CPU1_ROM5           : std_logic_vector(15 downto 0) := x"0104";
+-- BOMBJACK AUDIOCPU    
+constant C_DEV_BJ_CPU2_ROM1           : std_logic_vector(15 downto 0) := x"0105";
+-- BOMBJACK CHARACTERS
+constant C_DEV_BJ_GFX1_ROM1           : std_logic_vector(15 downto 0) := x"0106";
+constant C_DEV_BJ_GFX1_ROM2           : std_logic_vector(15 downto 0) := x"0107";
+constant C_DEV_BJ_GFX1_ROM3           : std_logic_vector(15 downto 0) := x"0108";
+-- BOMBJACK BGTILES
+constant C_DEV_BJ_GFX2_ROM1           : std_logic_vector(15 downto 0) := x"0109";
+constant C_DEV_BJ_GFX2_ROM2           : std_logic_vector(15 downto 0) := x"010A";
+constant C_DEV_BJ_GFX2_ROM3           : std_logic_vector(15 downto 0) := x"010B";
+-- BOMBJACK SPRITES
+constant C_DEV_BJ_GFX3_ROM1           : std_logic_vector(15 downto 0) := x"010C";
+constant C_DEV_BJ_GFX3_ROM2           : std_logic_vector(15 downto 0) := x"010D";
+constant C_DEV_BJ_GFX3_ROM3           : std_logic_vector(15 downto 0) := x"010E";
+-- BOMBJACK TILEMAPS
+constant C_DEV_BJ_GFX4_ROM1           : std_logic_vector(15 downto 0) := x"010F";
 
--- GALAGA core specific ROMs
-constant ROM1_MAIN_CPU_ROM            : string  := "arcade/galaga/rom1.rom" & ENDSTR; -- z80 cpu 1
-constant ROM2_SUB_CPU_ROM             : string  := "arcade/galaga/rom2.rom" & ENDSTR; -- z80 sub cpu
-constant ROM3_SND_CPU_ROM             : string  := "arcade/galaga/rom3.rom" & ENDSTR; -- z80 snd cpu
-constant GFX1_BG_ROM                  : string  := "arcade/galaga/gfx1.rom" & ENDSTR; -- bg layer shapes
-constant GFX2_FG_ROM                  : string  := "arcade/galaga/gfx2.rom" & ENDSTR; -- sprite shapes
-constant NAMCO51XX_MCU_ROM            : string  := "arcade/galaga/51xx.bin" & ENDSTR; -- 51xx mcu
-constant NAMCO54XX_MCU_ROM            : string  := "arcade/galaga/54xx.bin" & ENDSTR; -- 54xx mcu
+-- BOMBJACK core specific ROMs
+constant ROM1_MAIN_CPU_ROM            : string  := "arcade/bombjack/09_j01b.bin" & ENDSTR; -- z80 cpu 1
+constant ROM2_MAIN_CPU_ROM            : string  := "arcade/bombjack/10_l01b.bin" & ENDSTR; -- z80 cpu 1
+constant ROM3_MAIN_CPU_ROM            : string  := "arcade/bombjack/11_m01b.bin" & ENDSTR; -- z80 cpu 1
+constant ROM4_MAIN_CPU_ROM            : string  := "arcade/bombjack/12_n01b.bin" & ENDSTR; -- z80 cpu 1
+constant ROM5_MAIN_CPU_ROM            : string  := "arcade/bombjack/13.1r"       & ENDSTR; -- z80 cpu 1
+constant ROM1_AUD_CPU_ROM             : string  := "arcade/bombjack/01_h03t.bin" & ENDSTR; -- z80 sound cpu 2
+constant ROM1_GFX1_ROM                : string  := "arcade/bombjack/03_e08t.bin" & ENDSTR; -- gfx1 fg characters
+constant ROM2_GFX1_ROM                : string  := "arcade/bombjack/04_h08t.bin" & ENDSTR; -- gfx1 fg characters
+constant ROM3_GFX1_ROM                : string  := "arcade/bombjack/05_k08t.bin" & ENDSTR; -- gfx1 fg characters
+constant ROM1_GFX2_ROM                : string  := "arcade/bombjack/06_l08t.bin" & ENDSTR; -- gfx2 bg characters
+constant ROM2_GFX2_ROM                : string  := "arcade/bombjack/07_n08t.bin" & ENDSTR; -- gfx2 bg characters
+constant ROM3_GFX2_ROM                : string  := "arcade/bombjack/08_r08t.bin" & ENDSTR; -- gfx2 bg characters
+constant ROM1_GFX3_ROM                : string  := "arcade/bombjack/16_m07b.bin" & ENDSTR; -- gfx3 bg characters
+constant ROM2_GFX3_ROM                : string  := "arcade/bombjack/15_l07b.bin" & ENDSTR; -- gfx3 bg characters
+constant ROM3_GFX3_ROM                : string  := "arcade/bombjack/14_j07b.bin" & ENDSTR; -- gfx3 bg characters
+constant ROM1_GFX4_ROM                : string  := "arcade/bombjack/02_p04t.bin" & ENDSTR; -- gfx4 tielmap
+
 
 constant CPU_ROM1_MAIN_START          : std_logic_vector(15 downto 0) := X"0000";
 constant CPU_ROM2_MAIN_START          : std_logic_vector(15 downto 0) := CPU_ROM1_MAIN_START + ROM1_MAIN_CPU_ROM'length;
-constant CPU_ROM3_MAIN_START          : std_logic_vector(15 downto 0) := CPU_ROM2_MAIN_START + ROM2_SUB_CPU_ROM'length;
-constant GFX1_MAIN_START              : std_logic_vector(15 downto 0) := CPU_ROM3_MAIN_START + ROM3_SND_CPU_ROM'length;
-constant GFX2_MAIN_START              : std_logic_vector(15 downto 0) := GFX1_MAIN_START + GFX1_BG_ROM'length;
-constant MCU1_MAIN_START              : std_logic_vector(15 downto 0) := GFX2_MAIN_START + GFX2_FG_ROM'length;
-constant MCU2_MAIN_START              : std_logic_vector(15 downto 0) := MCU1_MAIN_START + NAMCO51XX_MCU_ROM'length;
+constant CPU_ROM3_MAIN_START          : std_logic_vector(15 downto 0) := CPU_ROM2_MAIN_START + ROM2_MAIN_CPU_ROM'length;
+constant CPU_ROM4_MAIN_START          : std_logic_vector(15 downto 0) := CPU_ROM3_MAIN_START + ROM3_MAIN_CPU_ROM'length;
+constant CPU_ROM5_MAIN_START          : std_logic_vector(15 downto 0) := CPU_ROM4_MAIN_START + ROM4_MAIN_CPU_ROM'length;
+constant CPU_ROM1_AUD_START           : std_logic_vector(15 downto 0) := CPU_ROM5_MAIN_START + ROM5_MAIN_CPU_ROM'length;
+constant GFX1_ROM1_START              : std_logic_vector(15 downto 0) := CPU_ROM1_AUD_START  + ROM1_AUD_CPU_ROM'length;
+constant GFX1_ROM2_START              : std_logic_vector(15 downto 0) := GFX1_ROM1_START     + ROM1_GFX1_ROM'length;
+constant GFX1_ROM3_START              : std_logic_vector(15 downto 0) := GFX1_ROM2_START     + ROM2_GFX1_ROM'length;
+constant GFX2_ROM1_START              : std_logic_vector(15 downto 0) := GFX1_ROM3_START     + ROM3_GFX1_ROM'length;
+constant GFX2_ROM2_START              : std_logic_vector(15 downto 0) := GFX2_ROM1_START     + ROM1_GFX2_ROM'length;
+constant GFX2_ROM3_START              : std_logic_vector(15 downto 0) := GFX2_ROM2_START     + ROM2_GFX2_ROM'length;
+constant GFX3_ROM1_START              : std_logic_vector(15 downto 0) := GFX2_ROM3_START     + ROM3_GFX2_ROM'length;
+constant GFX3_ROM2_START              : std_logic_vector(15 downto 0) := GFX3_ROM1_START     + ROM1_GFX3_ROM'length;
+constant GFX3_ROM3_START              : std_logic_vector(15 downto 0) := GFX3_ROM2_START     + ROM2_GFX3_ROM'length;
+constant GFX4_ROM1_START              : std_logic_vector(15 downto 0) := GFX3_ROM3_START     + ROM3_GFX3_ROM'length;
 
 -- M2M framework constants
-constant C_CRTROMS_AUTO_NUM      : natural := 7;                                       -- Amount of automatically loadable ROMs and carts, if more tha    n 3: also adjust CRTROM_MAN_MAX in M2M/rom/shell_vars.asm, Needs to be in sync with config.vhd. Maximum is 16
-constant C_CRTROMS_AUTO_NAMES    : string  := ROM1_MAIN_CPU_ROM & ROM2_SUB_CPU_ROM &
-                                              ROM3_SND_CPU_ROM & GFX1_BG_ROM & GFX2_FG_ROM &
-                                              NAMCO51XX_MCU_ROM & NAMCO54XX_MCU_ROM &
+constant C_CRTROMS_AUTO_NUM      : natural := 16; -- Amount of automatically loadable ROMs and carts, if more tha    n 3: also adjust CRTROM_MAN_MAX in M2M/rom/shell_vars.asm, Needs to be in sync with config.vhd. Maximum is 16
+constant C_CRTROMS_AUTO_NAMES    : string  := ROM1_MAIN_CPU_ROM & ROM2_MAIN_CPU_ROM & ROM3_MAIN_CPU_ROM & ROM4_MAIN_CPU_ROM & ROM5_MAIN_CPU_ROM &
+                                              ROM1_AUD_CPU_ROM &
+                                              ROM1_GFX1_ROM & ROM2_GFX1_ROM & ROM3_GFX1_ROM &
+                                              ROM1_GFX2_ROM & ROM2_GFX2_ROM & ROM3_GFX2_ROM &
+                                              ROM1_GFX3_ROM & ROM2_GFX3_ROM & ROM3_GFX3_ROM &
+                                              ROM1_GFX4_ROM &
                                               ENDSTR;
+                                              
 constant C_CRTROMS_AUTO          : crtrom_buf_array := ( 
-      C_CRTROMTYPE_DEVICE, C_DEV_GAL_CPU_ROM1, C_CRTROMTYPE_MANDATORY, CPU_ROM1_MAIN_START,
-      C_CRTROMTYPE_DEVICE, C_DEV_GAL_CPU_ROM2, C_CRTROMTYPE_MANDATORY, CPU_ROM2_MAIN_START,
-      C_CRTROMTYPE_DEVICE, C_DEV_GAL_CPU_ROM3, C_CRTROMTYPE_MANDATORY, CPU_ROM3_MAIN_START,
-      C_CRTROMTYPE_DEVICE, C_DEV_GAL_GFX1,     C_CRTROMTYPE_MANDATORY, GFX1_MAIN_START,
-      C_CRTROMTYPE_DEVICE, C_DEV_GAL_GFX2,     C_CRTROMTYPE_MANDATORY, GFX2_MAIN_START,
-      C_CRTROMTYPE_DEVICE, C_DEV_GAL_MCU1,     C_CRTROMTYPE_MANDATORY, MCU1_MAIN_START,
-      C_CRTROMTYPE_DEVICE, C_DEV_GAL_MCU2,     C_CRTROMTYPE_MANDATORY, MCU2_MAIN_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_CPU1_ROM1 , C_CRTROMTYPE_MANDATORY, CPU_ROM1_MAIN_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_CPU1_ROM2 , C_CRTROMTYPE_MANDATORY, CPU_ROM2_MAIN_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_CPU1_ROM3 , C_CRTROMTYPE_MANDATORY, CPU_ROM3_MAIN_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_CPU1_ROM4 , C_CRTROMTYPE_MANDATORY, CPU_ROM4_MAIN_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_CPU1_ROM5 , C_CRTROMTYPE_MANDATORY, CPU_ROM5_MAIN_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_CPU2_ROM1 , C_CRTROMTYPE_MANDATORY, CPU_ROM1_AUD_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX1_ROM1 , C_CRTROMTYPE_MANDATORY, GFX1_ROM1_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX1_ROM2 , C_CRTROMTYPE_MANDATORY, GFX1_ROM2_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX1_ROM3 , C_CRTROMTYPE_MANDATORY, GFX1_ROM3_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX2_ROM1 , C_CRTROMTYPE_MANDATORY, GFX2_ROM1_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX2_ROM2 , C_CRTROMTYPE_MANDATORY, GFX2_ROM2_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX2_ROM3 , C_CRTROMTYPE_MANDATORY, GFX2_ROM3_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX3_ROM1 , C_CRTROMTYPE_MANDATORY, GFX3_ROM1_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX3_ROM2 , C_CRTROMTYPE_MANDATORY, GFX3_ROM2_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX3_ROM3 , C_CRTROMTYPE_MANDATORY, GFX3_ROM3_START,
+      C_CRTROMTYPE_DEVICE, C_DEV_BJ_GFX4_ROM1 , C_CRTROMTYPE_MANDATORY, GFX4_ROM1_START,
                                                          x"EEEE");                     -- Always finish the array using x"EEEE"
-
-
+                                                         
 ----------------------------------------------------------------------------------------------------------
 -- Audio filters
 --

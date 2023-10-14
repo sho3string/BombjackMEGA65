@@ -166,9 +166,9 @@ signal video_rst           : std_logic;
 ---------------------------------------------------------------------------------------------
 
 -- Unprocessed video output from the Galaga core
-signal main_video_red      : std_logic_vector(2 downto 0);   
-signal main_video_green    : std_logic_vector(2 downto 0);
-signal main_video_blue     : std_logic_vector(1 downto 0);
+signal main_video_red      : std_logic_vector(3 downto 0);   
+signal main_video_green    : std_logic_vector(3 downto 0);
+signal main_video_blue     : std_logic_vector(3 downto 0);
 signal main_video_vs       : std_logic;
 signal main_video_hs       : std_logic;
 signal main_video_hblank   : std_logic;
@@ -243,8 +243,8 @@ constant C_MENU_NAMCO_DSWA_7  : natural := 78;
 -- Galaga specific video processing
 signal div                    : std_logic_vector(2 downto 0);
 signal dim_video              : std_logic;
-signal dsw_a_i                : std_logic_vector(7 downto 0);
-signal dsw_b_i                : std_logic_vector(7 downto 0);
+signal dsw_1                  : std_logic_vector(7 downto 0);
+signal dsw_2                  : std_logic_vector(7 downto 0);
 
 signal video_ce     : std_logic;
 signal video_red    : std_logic_vector(7 downto 0);
@@ -273,19 +273,19 @@ signal ddram_data       : std_logic_vector(63 downto 0);
 signal ddram_be         : std_logic_vector( 7 downto 0);
 signal ddram_we         : std_logic;
 
--- ROM devices for Galaga
-signal qnice_dn_addr    : std_logic_vector(15 downto 0);
+-- ROM devices for Bombjack
+signal qnice_dn_addr    : std_logic_vector(16 downto 0);
 signal qnice_dn_data    : std_logic_vector(7 downto 0);
 signal qnice_dn_wr      : std_logic;
 
--- 320x288 @ 50 Hz
-constant C_320_288_50 : video_modes_t := (
+-- 320x256 @ 50 Hz
+constant C_320_256_50 : video_modes_t := (
    CLK_KHZ     => 6000,       -- 6 MHz
    CEA_CTA_VIC => 0,
    ASPECT      => "01",       -- aspect ratio: 01=4:3, 10=16:9: "01" for SVGA
    PIXEL_REP   => '0',        -- no pixel repetition
    H_PIXELS    => 320,        -- horizontal display width in pixels
-   V_PIXELS    => 288,        -- vertical display width in rows
+   V_PIXELS    => 256,        -- vertical display width in rows
    H_PULSE     => 28,         -- horizontal sync pulse width in pixels
    H_BP        => 28,         -- horizontal back porch width in pixels
    H_FP        => 8,          -- horizontal front porch width in pixels
@@ -337,7 +337,7 @@ begin
    video_clk_o  <= video_clk;
    video_rst_o  <= video_rst;
    
-   dsw_a_i <= main_osm_control_i(C_MENU_MIDWAY_DSWA_7) &
+   dsw_1   <= main_osm_control_i(C_MENU_MIDWAY_DSWA_7) &
               main_osm_control_i(C_MENU_MIDWAY_DSWA_6) &
               main_osm_control_i(C_MENU_MIDWAY_DSWA_5) &
               main_osm_control_i(C_MENU_MIDWAY_DSWA_4) &
@@ -355,7 +355,7 @@ begin
               main_osm_control_i(C_MENU_NAMCO_DSWA_1) &
               main_osm_control_i(C_MENU_NAMCO_DSWA_0);       
    
-  dsw_b_i <=  main_osm_control_i(C_MENU_MIDWAY_DSWB_7) &
+  dsw_2   <=  main_osm_control_i(C_MENU_MIDWAY_DSWB_7) &
               main_osm_control_i(C_MENU_MIDWAY_DSWB_6) &
               main_osm_control_i(C_MENU_MIDWAY_DSWB_5) &
               main_osm_control_i(C_MENU_MIDWAY_DSWB_4) &
@@ -390,7 +390,7 @@ begin
          reset_hard_i         => main_reset_m2m_i,
          pause_i              => main_pause_core_i and main_osm_control_i(C_MENU_OSMPAUSE),
          dim_video_o          => dim_video,
-         clk_main_speed_i     => CORE_CLK_SPEED,
+         clk_main_speed_i     => CORE_CLK_SPEED, -- should be 4Mhz and 12Mhz
          
          -- Video output
          -- This is PAL 720x576 @ 50 Hz (pixel clock 27 MHz), but synchronized to main_clk (54 MHz).
@@ -434,8 +434,8 @@ begin
          dn_wr_i              => qnice_dn_wr,
 
          osm_control_i        => main_osm_control_i,
-         dsw_a_i              => dsw_a_i,
-         dsw_b_i              => dsw_b_i
+         dsw_1_i              => dsw_1,
+         dsw_2_i              => dsw_1
       ); -- i_main
 
     process (video_clk) -- 48 MHz
@@ -453,13 +453,13 @@ begin
             end if;
 
             if dim_video = '1' then
-                video_red   <= "0" & main_video_red   & main_video_red   & main_video_red(2 downto 2);
-                video_green <= "0" & main_video_green & main_video_green & main_video_green(2 downto 2);
-                video_blue  <= "0" & main_video_blue  & main_video_blue  & main_video_blue & main_video_blue(1 downto 1);  
+                video_red   <= "0" & main_video_red   & main_video_red(3 downto 1);
+                video_green <= "0" & main_video_green & main_video_green(3 downto 1);
+                video_blue  <= "0" & main_video_blue  & main_video_blue (3 downto 1);
             else
-                video_red   <= main_video_red   & main_video_red   & main_video_red(2 downto 1);
-                video_green <= main_video_green & main_video_green & main_video_green(2 downto 1);
-                video_blue  <= main_video_blue  & main_video_blue  & main_video_blue & main_video_blue;
+                video_red   <= main_video_red   & main_video_red;
+                video_green <= main_video_green & main_video_green;
+                video_blue  <= main_video_blue  & main_video_blue;
             end if;
 
             video_hs     <= not main_video_hs;
@@ -567,7 +567,7 @@ begin
          G_ADDR_WIDTH => 16,
          G_H_LEFT     => 48,
          G_H_RIGHT    => 224+48,
-         G_VIDEO_MODE => C_320_288_50
+         G_VIDEO_MODE => C_320_256_50
       )
       
       port map (
@@ -649,52 +649,89 @@ begin
       qnice_dn_wr      <= '0';
       qnice_dn_addr    <= (others => '0');
       qnice_dn_data    <= (others => '0');
+    
 
       case qnice_dev_id_i is
 
---rom1_cs  <= '1' when dn_addr(15 downto 14) = "00"     else '0'; -- 16k
---rom2_cs  <= '1' when dn_addr(15 downto 12) = "0100"   else '0'; -- 4k
---rom3_cs  <= '1' when dn_addr(15 downto 12) = "0101"   else '0'; -- 4k
---roms_cs  <= '1' when dn_addr(15 downto 13) = "011"    else '0'; -- 8k
---romb_cs  <= '1' when dn_addr(15 downto 13) = "100"    else '0'; -- 8k
---rom51_cs <= '1' when dn_addr(15 downto 10) = "101000" else '0'; -- 1k
---rom54_cs <= '1' when dn_addr(15 downto 10) = "101001" else '0'; -- 1k
-
-         -- Galaga ROMSs
-         when C_DEV_GAL_CPU_ROM1 =>
+         when C_DEV_BJ_CPU1_ROM1 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr <= "00" & qnice_dev_addr_i(13 downto 0);    -- rom1_cs
+              qnice_dn_addr <= "1000" & qnice_dev_addr_i(12 downto 0);    --ROM_1J_cs <= '1' when dn_addr(16 downto 13) = X"8" else '0';
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-
-         when C_DEV_GAL_CPU_ROM2 =>
+              
+         when C_DEV_BJ_CPU1_ROM2 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr <= "0100" & qnice_dev_addr_i(11 downto 0);  -- rom2_cs
+              qnice_dn_addr <= "1001" & qnice_dev_addr_i(12 downto 0);    --ROM_1L_cs <= '1' when dn_addr(16 downto 13) = X"9" else '0';
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-
-         when C_DEV_GAL_CPU_ROM3 =>
+              
+         when C_DEV_BJ_CPU1_ROM3 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr <= "0101" & qnice_dev_addr_i(11 downto 0);  -- rom3_cs
+              qnice_dn_addr <= "1010" & qnice_dev_addr_i(12 downto 0);    --ROM_1M_cs <= '1' when dn_addr(16 downto 13) = X"A" else '0';
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-
-         when C_DEV_GAL_GFX2 =>
+              
+         when C_DEV_BJ_CPU1_ROM4 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr <= "011" & qnice_dev_addr_i(12 downto 0);   -- roms_cs
+              qnice_dn_addr <= "1011" & qnice_dev_addr_i(12 downto 0);    --ROM_1N_cs <= '1' when dn_addr(16 downto 13) = X"B" else '0';
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-
-         when C_DEV_GAL_GFX1 =>
+              
+         when C_DEV_BJ_CPU1_ROM5 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr <= "100" & qnice_dev_addr_i(12 downto 0);   -- romb_cs
+              qnice_dn_addr <= "1100" & qnice_dev_addr_i(12 downto 0);    --ROM_1R_cs <= '1' when dn_addr(16 downto 13) = X"C" else '0';
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-
-         when C_DEV_GAL_MCU1 =>
+         
+         when C_DEV_BJ_CPU2_ROM1 => 
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr <= "101000" & qnice_dev_addr_i(9 downto 0); -- rom51_cs
+              qnice_dn_addr <= "0000" & qnice_dev_addr_i(12 downto 0);    --ROM_4P_cs <= '1' when dn_addr(16 downto 13) = X"1" else '0';
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
-
-         when C_DEV_GAL_MCU2 =>
+         
+         when C_DEV_BJ_GFX1_ROM1 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr <= "101001" & qnice_dev_addr_i(9 downto 0); -- rom52_cs
+              qnice_dn_addr <= "0010" & qnice_dev_addr_i(12 downto 0);    --ROM_8E_cs <= '1' when dn_addr(16 downto 13) = X"2" else '0';
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+              
+         when C_DEV_BJ_GFX1_ROM2 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr <= "0011" & qnice_dev_addr_i(12 downto 0);    --ROM_8H_cs <= '1' when dn_addr(16 downto 13) = X"3" else '0';
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+              
+         when C_DEV_BJ_GFX1_ROM3 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr <= "0100" & qnice_dev_addr_i(12 downto 0);    --ROM_8K_cs <= '1' when dn_addr(16 downto 13) = X"4" else '0';
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+	
+	     when C_DEV_BJ_GFX2_ROM1 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr <= "0101" & qnice_dev_addr_i(12 downto 0);    --ROM_8L_cs <= '1' when dn_addr(16 downto 13) = X"5" else '0';    
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+              
+         when C_DEV_BJ_GFX2_ROM2 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr <= "0110" & qnice_dev_addr_i(12 downto 0);    --ROM_8N_cs <= '1' when dn_addr(16 downto 13) = X"6" else '0';    
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+         
+         when C_DEV_BJ_GFX2_ROM3 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr <= "0111" & qnice_dev_addr_i(12 downto 0);    --ROM_8R_cs <= '1' when dn_addr(16 downto 13) = X"7" else '0';
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+        
+         when C_DEV_BJ_GFX3_ROM1 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr <= "1111" & qnice_dev_addr_i(12 downto 0);    --ROM_7M_cs <= '1' when dn_addr(16 downto 13) = X"F" else '0';
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
+         
+         when C_DEV_BJ_GFX3_ROM2 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr <= "1110" & qnice_dev_addr_i(12 downto 0);    --ROM_7L_cs <= '1' when dn_addr(16 downto 13) = X"E" else '0';
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+              
+         when C_DEV_BJ_GFX3_ROM3 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr <= "1101" & qnice_dev_addr_i(12 downto 0);    --ROM_7J_cs <= '1' when dn_addr(16 downto 13) = X"D" else '0';
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0);
+              
+         when C_DEV_BJ_GFX4_ROM1 =>
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
+              qnice_dn_addr <= "0001" & qnice_dev_addr_i(12 downto 0);    --ROM_4P_cs <= '1' when dn_addr(16 downto 13) = X"1" else '0';
+              qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
 
          when others => null;
       end case;

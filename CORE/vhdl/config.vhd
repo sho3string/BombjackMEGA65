@@ -185,8 +185,8 @@ constant SEL_CFG_FILE      : std_logic_vector(15 downto 0) := x"0101";
 
 -- START YOUR CONFIGURATION BELOW THIS LINE
 
-constant DIR_START         : string := "/arcade/galaga";
-constant CFG_FILE          : string := "/arcade/galaga/glgcfg";
+constant DIR_START         : string := "/arcade/bombjack";
+constant CFG_FILE          : string := "/arcade/bombjack/bjcfg";
 
 --------------------------------------------------------------------------------------------------------------------
 -- General configuration settings: Reset, Pause, OSD behavior, Ascal, etc. (Selector 0x0110)
@@ -268,7 +268,7 @@ constant SEL_CORENAME      : std_logic_vector(15 downto 0) := x"0200";
 
 -- Currently this is only used in the debug console. Use the welcome screen and the
 -- help system to display the name and version of the Galaga core to the end user
-constant CORENAME          : string := "Galaga V1";
+constant CORENAME          : string := "Bombjack V1";
 
 --------------------------------------------------------------------------------------------------------------------
 -- "Help" menu / Options menu  (Selectors 0x0300 .. 0x0312): DO NOT TOUCH
@@ -331,7 +331,7 @@ constant OPTM_DX           : natural := 23;
 constant OPTM_DY           : natural := 23;
 
 constant OPTM_ITEMS        : string :=
-   " Galaga\n"              &
+   " Bombjack\n"              &
    "\n"                     &
    " Pause when OSD open\n" &
    " Dim Video after 10s\n" &
