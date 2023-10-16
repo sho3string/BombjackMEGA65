@@ -44,7 +44,7 @@ constant QNICE_FIRMWARE           : string  := QNICE_FIRMWARE_M2M;
 -- Galaga core's clock speed
 -- Actual clock is 18_432 Mhz ( see MAME driver - galaga.cpp ).
 -- MiSTer uses 18Mhz
-constant CORE_CLK_SPEED       : natural := 18_000_000;   -- Galaga's main clock is 18 MHz 
+constant CORE_CLK_SPEED       : natural := 48_000_000;   -- Galaga's main clock is 18 MHz 
 
 -- System clock speed (crystal that is driving the FPGA) and QNICE clock speed
 -- !!! Do not touch !!!
@@ -182,7 +182,7 @@ constant ROM3_GFX2_ROM                : string  := "arcade/bombjack/08_r08t.bin"
 constant ROM1_GFX3_ROM                : string  := "arcade/bombjack/16_m07b.bin" & ENDSTR; -- gfx3 bg characters
 constant ROM2_GFX3_ROM                : string  := "arcade/bombjack/15_l07b.bin" & ENDSTR; -- gfx3 bg characters
 constant ROM3_GFX3_ROM                : string  := "arcade/bombjack/14_j07b.bin" & ENDSTR; -- gfx3 bg characters
-constant ROM1_GFX4_ROM                : string  := "arcade/bombjack/02_p04t.bin" & ENDSTR; -- gfx4 tielmap
+constant ROM1_GFX4_ROM                : string  := "arcade/bombjack/02_p04t.bin" & ENDSTR; -- gfx4 tilemap
 
 
 constant CPU_ROM1_MAIN_START          : std_logic_vector(15 downto 0) := X"0000";

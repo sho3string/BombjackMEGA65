@@ -29,6 +29,9 @@ port (
    
    video_clk_o             : out std_logic;              -- video clock 48 MHz
    video_rst_o             : out std_logic;              -- video reset, synchronized
+   
+   clk_6M_o                : out std_logic;              -- 6Mhz
+   clk_6M_rst_o            : out std_logic;              -- 6Mhz reset
 
    --------------------------------------------------------------------------------------------------------
    -- QNICE Clock Domain
@@ -161,6 +164,9 @@ signal main_rst            : std_logic;
 signal video_clk           : std_logic;               
 signal video_rst           : std_logic;
 
+signal clk_6m              : std_logic;               
+signal clk_6M_rst          : std_logic;
+
 ---------------------------------------------------------------------------------------------
 -- main_clk (MiSTer core's clock)
 ---------------------------------------------------------------------------------------------
@@ -278,14 +284,16 @@ signal qnice_dn_addr    : std_logic_vector(16 downto 0);
 signal qnice_dn_data    : std_logic_vector(7 downto 0);
 signal qnice_dn_wr      : std_logic;
 
+signal rgb_out          : std_logic_vector(11 downto 0);
+
 -- 320x256 @ 50 Hz
-constant C_320_256_50 : video_modes_t := (
+constant C_320_288_50 : video_modes_t := (
    CLK_KHZ     => 6000,       -- 6 MHz
    CEA_CTA_VIC => 0,
    ASPECT      => "01",       -- aspect ratio: 01=4:3, 10=16:9: "01" for SVGA
    PIXEL_REP   => '0',        -- no pixel repetition
    H_PIXELS    => 320,        -- horizontal display width in pixels
-   V_PIXELS    => 256,        -- vertical display width in rows
+   V_PIXELS    => 270,        -- vertical display width in rows
    H_PULSE     => 28,         -- horizontal sync pulse width in pixels
    H_BP        => 28,         -- horizontal back porch width in pixels
    H_FP        => 8,          -- horizontal front porch width in pixels
@@ -315,11 +323,14 @@ begin
          main_rst_o        => main_rst,        -- Galaga's reset, synchronized
          
          video_clk_o       => video_clk,       -- video clock 48 MHz
-         video_rst_o       => video_rst        -- video reset, synchronized
+         video_rst_o       => video_rst,       -- video reset, synchronized
+         
+         clk_6m_o          => clk_6m,           --
+         clk_6m_rst_o      => clk_6m_rst        -- 
       
       ); -- clk_gen
       
-      
+   
    i_cdc_qnice2video : xpm_cdc_array_single
       generic map (
          WIDTH => 1
@@ -330,12 +341,14 @@ begin
          dest_clk          => video_clk,
          dest_out(0)       => video_rot90_flag
       ); -- i_cdc_qnice2video
-
+    
 
    main_clk_o   <= main_clk;
    main_rst_o   <= main_rst;
    video_clk_o  <= video_clk;
    video_rst_o  <= video_rst;
+   clk_6m_o     <= clk_6m;
+   clk_6M_rst   <= clk_6m_rst;
    
    dsw_1   <= main_osm_control_i(C_MENU_MIDWAY_DSWA_7) &
               main_osm_control_i(C_MENU_MIDWAY_DSWA_6) &
@@ -385,6 +398,7 @@ begin
          
       )
       port map (
+         --clk_6m_o             => clk_6m,
          clk_main_i           => main_clk,
          reset_soft_i         => main_reset_core_i,
          reset_hard_i         => main_reset_m2m_i,
@@ -456,13 +470,14 @@ begin
                 video_red   <= "0" & main_video_red   & main_video_red(3 downto 1);
                 video_green <= "0" & main_video_green & main_video_green(3 downto 1);
                 video_blue  <= "0" & main_video_blue  & main_video_blue (3 downto 1);
+                
             else
                 video_red   <= main_video_red   & main_video_red;
                 video_green <= main_video_green & main_video_green;
                 video_blue  <= main_video_blue  & main_video_blue;
             end if;
 
-            video_hs     <= not main_video_hs;
+            video_hs     <= main_video_hs;
             video_vs     <= main_video_vs;
             video_hblank <= main_video_hblank;
             video_vblank <= main_video_vblank;
@@ -530,6 +545,35 @@ begin
     -- pixels on either side.
     -- Nevertheless, on my VGA monitor, this video signal is recognized as
     -- 720x288 @ 50Hz.
+    
+    /*
+    i_arcade_video : entity work.arcade_video
+    generic map (
+        WIDTH => 270,   -- screen width in pixels ( ROT90 )
+        DW    => 8,     -- each character is 8 pixels x 8 pixels
+        GAMMA => 0      -- @TODO: Deactivated to start with; we might need to reactivate later
+    )
+    port map (
+        clk_video_i        => video_clk,             -- video clock 48 MHz
+        ce_pix             => video_ce,
+        RGB_in             => rgb_out,
+        HBlank             => video_hblank,
+        VBlank             => video_vblank,
+        HSync              => video_hs,
+        VSync              => video_vs,
+        CLK_VIDEO_o        => video_clk_o,
+        CE_PIXEL           => video_ce_o,
+        VGA_R              => video_red_o,
+        VGA_G              => video_green_o,
+        VGA_B              => video_blue_o,
+        VGA_HS             => video_hs_o,
+        VGA_VS             => video_vs_o,
+        VGA_DE             => video_de,
+        VGA_SL             => open,                  -- @TODO: need to handle later
+        fx                 => "000",
+        forced_scandoubler => '0',
+        gamma_bus          => "000000000000000000000"
+    ); -- i_arcade_video */
 
     i_screen_rotate : entity work.screen_rotate
        port map (
@@ -562,12 +606,13 @@ begin
    -- Here G_ADDR_WIDTH is determined by the total number of visible pixels,
    -- since each word in memory stores one pixel.
    -- Here we have 288*224 = 64512, i.e. 16 bits of address is enough.
+   
    i_frame_buffer : entity work.frame_buffer
       generic map (
          G_ADDR_WIDTH => 16,
          G_H_LEFT     => 48,
          G_H_RIGHT    => 224+48,
-         G_VIDEO_MODE => C_320_256_50
+         G_VIDEO_MODE => C_320_288_50
       )
       
       port map (
@@ -585,7 +630,7 @@ begin
          video_hblank_o   => video_rot_hblank,
          video_vblank_o   => video_rot_vblank
       ); -- i_frame_buffer
-
+    
    ---------------------------------------------------------------------------------------------
    -- Audio and video settings (QNICE clock domain)
    ---------------------------------------------------------------------------------------------
@@ -650,9 +695,10 @@ begin
       qnice_dn_addr    <= (others => '0');
       qnice_dn_data    <= (others => '0');
     
-
+     
       case qnice_dev_id_i is
-
+         
+         
          when C_DEV_BJ_CPU1_ROM1 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
               qnice_dn_addr <= "1000" & qnice_dev_addr_i(12 downto 0);    --ROM_1J_cs <= '1' when dn_addr(16 downto 13) = X"8" else '0';
@@ -679,8 +725,8 @@ begin
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
          
          when C_DEV_BJ_CPU2_ROM1 => 
-              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
-              qnice_dn_addr <= "0000" & qnice_dev_addr_i(12 downto 0);    --ROM_4P_cs <= '1' when dn_addr(16 downto 13) = X"1" else '0';
+              qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;         --ROM_3H_cs <= '1' when dn_addr(16 downto 13) = X"0" else '0';
+              qnice_dn_addr <= "0000" & qnice_dev_addr_i(12 downto 0);    
               qnice_dn_data <= qnice_dev_data_i(7 downto 0);
          
          when C_DEV_BJ_GFX1_ROM1 =>
@@ -732,7 +778,7 @@ begin
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
               qnice_dn_addr <= "0001" & qnice_dev_addr_i(12 downto 0);    --ROM_4P_cs <= '1' when dn_addr(16 downto 13) = X"1" else '0';
               qnice_dn_data <= qnice_dev_data_i(7 downto 0); 
-
+        
          when others => null;
       end case;
 

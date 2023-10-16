@@ -19,6 +19,7 @@ entity main is
    );
    port (
       
+      --clk_6m_o                : out std_logic;
       clk_main_i              : in  std_logic;
       reset_soft_i            : in  std_logic;
       reset_hard_i            : in  std_logic;
@@ -94,7 +95,7 @@ signal forced_scandoubler: std_logic;
 --signal no_rotate         : std_logic := status(2) OR direct_video;
 signal gamma_bus         : std_logic_vector(21 downto 0);
 signal audio             : std_logic_vector(7 downto 0);
-
+signal clk_6m            : std_logic;
 
 -- I/O board button press simulation ( active high )
 -- b[1]: user button
@@ -156,6 +157,7 @@ begin
     port map (
     
     clk_48M    => clk_main_i,
+    clk_6M     => clk_6m,
     reset      => reset,
     
     VGA_R      => video_red_o,

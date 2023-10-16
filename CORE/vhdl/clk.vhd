@@ -30,7 +30,10 @@ entity clk is
       main_rst_o      : out std_logic;   -- Galaga's reset, synchronized
       
       video_clk_o     : out std_logic;   -- video clock 48 MHz
-      video_rst_o     : out std_logic    -- video reset, synchronized
+      video_rst_o     : out std_logic;    --video reset, synchronized
+      
+      clk_6m_o        : out std_logic;   -- 6Mhz
+      clk_6m_rst_o    : out std_logic    -- 6Mhz reset
    );
 end entity clk;
 
@@ -40,7 +43,7 @@ signal clkfb_main         : std_logic;
 signal clkfb_main_mmcm    : std_logic;
 signal main_clk_mmcm      : std_logic;
 signal video_clk_mmcm     : std_logic;
-
+signal clk_6m_mmcm        : std_logic;
 signal main_locked        : std_logic;
 
 begin
@@ -61,20 +64,25 @@ begin
          CLKFBOUT_MULT_F      => 36.000,     -- (100 MHz x 36) / 5 = 720 MHz
          CLKFBOUT_PHASE       => 0.000,
          CLKFBOUT_USE_FINE_PS => FALSE,
-         CLKOUT0_DIVIDE_F     => 40.000,     -- 720 MHz / 40.000 = 18 MHz
+         CLKOUT0_DIVIDE_F     => 15.000,     -- 720 MHz / 15.000 = 48 MHz
          CLKOUT0_PHASE        => 0.000,
          CLKOUT0_DUTY_CYCLE   => 0.500,
          CLKOUT0_USE_FINE_PS  => FALSE,
-         CLKOUT1_DIVIDE       => 15,         -- 720 MHz / 15 = 48 MHz
+         CLKOUT1_DIVIDE       => 15,         -- 720 MHz /  15 = 48 MHz
          CLKOUT1_PHASE        => 0.000,
          CLKOUT1_DUTY_CYCLE   => 0.500,
-         CLKOUT1_USE_FINE_PS  => FALSE         
+         CLKOUT1_USE_FINE_PS  => FALSE,
+         CLKOUT2_DIVIDE       => 120,         -- 720 MHz / 120 = 6 MHz
+         CLKOUT2_PHASE        => 0.000,
+         CLKOUT2_DUTY_CYCLE   => 0.500,
+         CLKOUT2_USE_FINE_PS  => FALSE                  
       )
       port map (
          -- Output clocks
          CLKFBOUT            => clkfb_main_mmcm,
          CLKOUT0             => main_clk_mmcm,
          CLKOUT1             => video_clk_mmcm,
+         CLKOUT2             => clk_6m_mmcm,
          -- Input clock control
          CLKFBIN             => clkfb_main,
          CLKIN1              => sys_clk_i,
@@ -122,7 +130,13 @@ begin
       port map (
          I => video_clk_mmcm,
          O => video_clk_o
-      );
+      );   
+      
+   clk_6m_bufg : BUFG
+      port map (
+         I => clk_6m_mmcm,
+         O => clk_6m_o
+      );   
 
    -------------------------------------
    -- Reset generation
@@ -149,6 +163,18 @@ begin
          src_arst  => not (main_locked and sys_rstn_i),   -- 1-bit input: Source reset signal.
          dest_clk  => video_clk_o,       -- 1-bit input: Destination clock.
          dest_arst => video_rst_o        -- 1-bit output: src_rst synchronized to the destination clock domain.
+                                         -- This output is registered.
+      );
+      
+   i_xpm_cdc_async_rst_6m : xpm_cdc_async_rst
+      generic map (
+         RST_ACTIVE_HIGH => 1,
+         DEST_SYNC_FF    => 10
+      )
+      port map (
+         src_arst  => not (main_locked and sys_rstn_i),   -- 1-bit input: Source reset signal.
+         dest_clk  => clk_6m_o,          -- 1-bit input: Destination clock.
+         dest_arst => clk_6m_rst_o       -- 1-bit output: src_rst synchronized to the destination clock domain.
                                          -- This output is registered.
       );
       
