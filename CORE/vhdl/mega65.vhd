@@ -268,6 +268,11 @@ constant C_320_288_50 : video_modes_t := (
    V_POL       => '1'         -- vertical sync pulse polarity (1 = positive, 0 = negative)
 );
 
+-- 270 * 224
+
+-- 256 * 224 
+
+
 begin
 
    -- Configure the LEDs:
@@ -415,7 +420,7 @@ begin
             end if;
 
             video_hs     <= not main_video_hs;
-            video_vs     <= main_video_vs;
+            video_vs     <= not main_video_vs;
             video_hblank <= main_video_hblank;
             video_vblank <= main_video_vblank;
             video_de     <= not (main_video_hblank or main_video_vblank);
