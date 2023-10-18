@@ -24,15 +24,11 @@ port (
    RESET_M2M_N             : in  std_logic;              -- Debounced system reset in system clock domain
 
    -- Share clock and reset with the framework
-   main_clk_o              : out std_logic;              -- Galaga's 18 MHz main clock
-   main_rst_o              : out std_logic;              -- Galaga's reset, synchronized
+   main_clk_o              : out std_logic;              -- 48 MHz main clock
+   main_rst_o              : out std_logic;              -- reset, synchronized
    
    video_clk_o             : out std_logic;              -- video clock 48 MHz
-   video_rst_o             : out std_logic;              -- video reset, synchronized
-   
-   clk_6M_o                : out std_logic;              -- 6Mhz
-   clk_6M_rst_o            : out std_logic;              -- 6Mhz reset
-
+   video_rst_o             : out std_logic;              -- video reset, synchronize
    --------------------------------------------------------------------------------------------------------
    -- QNICE Clock Domain
    --------------------------------------------------------------------------------------------------------
@@ -161,17 +157,11 @@ architecture synthesis of MEGA65_Core is
 signal main_clk            : std_logic;               -- Core main clock
 signal main_rst            : std_logic;
 
-signal video_clk           : std_logic;               
-signal video_rst           : std_logic;
-
-signal clk_6m              : std_logic;               
-signal clk_6M_rst          : std_logic;
-
 ---------------------------------------------------------------------------------------------
 -- main_clk (MiSTer core's clock)
 ---------------------------------------------------------------------------------------------
 
--- Unprocessed video output from the Galaga core
+-- Unprocessed video output from the Bombjack core
 signal main_video_red      : std_logic_vector(3 downto 0);   
 signal main_video_green    : std_logic_vector(3 downto 0);
 signal main_video_blue     : std_logic_vector(3 downto 0);
@@ -199,58 +189,32 @@ constant C_MENU_VGA_STD       : natural := 23;
 constant C_MENU_VGA_15KHZHSVS : natural := 27;
 constant C_MENU_VGA_15KHZCS   : natural := 28;
 
-constant C_MENU_MIDWAY        : natural := 34;
-constant C_MENU_NAMCO         : natural := 35;
-
--- Midway DIPs
 -- Dipswitch B
-constant C_MENU_MIDWAY_DSWB_0 : natural := 40;
-constant C_MENU_MIDWAY_DSWB_1 : natural := 41;
-constant C_MENU_MIDWAY_DSWB_2 : natural := 42;
-constant C_MENU_MIDWAY_DSWB_3 : natural := 43;
-constant C_MENU_MIDWAY_DSWB_4 : natural := 44;
-constant C_MENU_MIDWAY_DSWB_5 : natural := 45;
-constant C_MENU_MIDWAY_DSWB_6 : natural := 46;
-constant C_MENU_MIDWAY_DSWB_7 : natural := 47;
+constant C_MENU_DSWB_0 : natural := 35;
+constant C_MENU_DSWB_1 : natural := 36;
+constant C_MENU_DSWB_2 : natural := 37;
+constant C_MENU_DSWB_3 : natural := 38;
+constant C_MENU_DSWB_4 : natural := 39;
+constant C_MENU_DSWB_5 : natural := 40;
+constant C_MENU_DSWB_6 : natural := 41;
+constant C_MENU_DSWB_7 : natural := 42;
 
 -- Dipswitch A
-constant C_MENU_MIDWAY_DSWA_0 : natural := 49;
-constant C_MENU_MIDWAY_DSWA_1 : natural := 50;
-constant C_MENU_MIDWAY_DSWA_2 : natural := 51;
-constant C_MENU_MIDWAY_DSWA_3 : natural := 52;
-constant C_MENU_MIDWAY_DSWA_4 : natural := 53;
-constant C_MENU_MIDWAY_DSWA_5 : natural := 54;
-constant C_MENU_MIDWAY_DSWA_6 : natural := 55;
-constant C_MENU_MIDWAY_DSWA_7 : natural := 56;
+constant C_MENU_DSWA_0 : natural := 44;
+constant C_MENU_DSWA_1 : natural := 45;
+constant C_MENU_DSWA_2 : natural := 46;
+constant C_MENU_DSWA_3 : natural := 47;
+constant C_MENU_DSWA_4 : natural := 48;
+constant C_MENU_DSWA_5 : natural := 49;
+constant C_MENU_DSWA_6 : natural := 50;
+constant C_MENU_DSWA_7 : natural := 51;
 
 
--- Namco DIPs
--- Dipswitch B
-constant C_MENU_NAMCO_DSWB_0  : natural := 62;
-constant C_MENU_NAMCO_DSWB_1  : natural := 63;
-constant C_MENU_NAMCO_DSWB_2  : natural := 64;
-constant C_MENU_NAMCO_DSWB_3  : natural := 65;
-constant C_MENU_NAMCO_DSWB_4  : natural := 66;
-constant C_MENU_NAMCO_DSWB_5  : natural := 67;
-constant C_MENU_NAMCO_DSWB_6  : natural := 68;
-constant C_MENU_NAMCO_DSWB_7  : natural := 69;
-
--- Dipswitch A
-constant C_MENU_NAMCO_DSWA_0  : natural := 71;
-constant C_MENU_NAMCO_DSWA_1  : natural := 72;
-constant C_MENU_NAMCO_DSWA_2  : natural := 73;
-constant C_MENU_NAMCO_DSWA_3  : natural := 74;
-constant C_MENU_NAMCO_DSWA_4  : natural := 75;
-constant C_MENU_NAMCO_DSWA_5  : natural := 76;
-constant C_MENU_NAMCO_DSWA_6  : natural := 77;
-constant C_MENU_NAMCO_DSWA_7  : natural := 78;
-
-
--- Galaga specific video processing
-signal div                    : std_logic_vector(2 downto 0);
-signal dim_video              : std_logic;
-signal dsw_1                  : std_logic_vector(7 downto 0);
-signal dsw_2                  : std_logic_vector(7 downto 0);
+-- Bombjack specific video processing
+signal div          : std_logic_vector(2 downto 0);
+signal dim_video    : std_logic;
+signal dsw_1        : std_logic_vector(7 downto 0);
+signal dsw_2        : std_logic_vector(7 downto 0);
 
 signal video_ce     : std_logic;
 signal video_red    : std_logic_vector(7 downto 0);
@@ -293,7 +257,7 @@ constant C_320_288_50 : video_modes_t := (
    ASPECT      => "01",       -- aspect ratio: 01=4:3, 10=16:9: "01" for SVGA
    PIXEL_REP   => '0',        -- no pixel repetition
    H_PIXELS    => 320,        -- horizontal display width in pixels
-   V_PIXELS    => 270,        -- vertical display width in rows
+   V_PIXELS    => 288,        -- vertical display width in rows
    H_PULSE     => 28,         -- horizontal sync pulse width in pixels
    H_BP        => 28,         -- horizontal back porch width in pixels
    H_FP        => 8,          -- horizontal front porch width in pixels
@@ -319,14 +283,8 @@ begin
          sys_clk_i         => CLK,             -- expects 100 MHz
          sys_rstn_i        => RESET_M2M_N,     -- Asynchronous, asserted low
          
-         main_clk_o        => main_clk,        -- Galaga's 18 MHz main clock
-         main_rst_o        => main_rst,        -- Galaga's reset, synchronized
-         
-         video_clk_o       => video_clk,       -- video clock 48 MHz
-         video_rst_o       => video_rst,       -- video reset, synchronized
-         
-         clk_6m_o          => clk_6m,           --
-         clk_6m_rst_o      => clk_6m_rst        -- 
+         main_clk_o        => main_clk,        -- 48 MHz main clock
+         main_rst_o        => main_rst         -- reset, synchronized
       
       ); -- clk_gen
       
@@ -338,55 +296,35 @@ begin
       port map (
          src_clk           => qnice_clk_i,
          src_in(0)         => qnice_osm_control_i(C_MENU_ROT90),
-         dest_clk          => video_clk,
+         dest_clk          => main_clk,
          dest_out(0)       => video_rot90_flag
       ); -- i_cdc_qnice2video
     
 
    main_clk_o   <= main_clk;
    main_rst_o   <= main_rst;
-   video_clk_o  <= video_clk;
-   video_rst_o  <= video_rst;
-   clk_6m_o     <= clk_6m;
-   clk_6M_rst   <= clk_6m_rst;
+   video_clk_o  <= main_clk;
+   video_rst_o  <= main_rst;
    
-   dsw_1   <= main_osm_control_i(C_MENU_MIDWAY_DSWA_7) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWA_6) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWA_5) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWA_4) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWA_3) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWA_2) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWA_1) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWA_0)  when main_osm_control_i(C_MENU_MIDWAY) = '1' else
+   
+   dsw_1   <= main_osm_control_i(C_MENU_DSWA_7) &
+              main_osm_control_i(C_MENU_DSWA_6) &
+              main_osm_control_i(C_MENU_DSWA_5) &
+              main_osm_control_i(C_MENU_DSWA_4) &
+              main_osm_control_i(C_MENU_DSWA_3) &
+              main_osm_control_i(C_MENU_DSWA_2) &
+              main_osm_control_i(C_MENU_DSWA_1) &
+              main_osm_control_i(C_MENU_DSWA_0);
+   
+   dsw_2   <= main_osm_control_i(C_MENU_DSWB_7) &
+              main_osm_control_i(C_MENU_DSWB_6) &
+              main_osm_control_i(C_MENU_DSWB_5) &
+              main_osm_control_i(C_MENU_DSWB_4) &
+              main_osm_control_i(C_MENU_DSWB_3) &
+              main_osm_control_i(C_MENU_DSWB_2) &
+              main_osm_control_i(C_MENU_DSWB_1) &
+              main_osm_control_i(C_MENU_DSWB_0);
                     
-              main_osm_control_i(C_MENU_NAMCO_DSWA_7) &
-              main_osm_control_i(C_MENU_NAMCO_DSWA_6) &
-              main_osm_control_i(C_MENU_NAMCO_DSWA_5) &
-              main_osm_control_i(C_MENU_NAMCO_DSWA_4) &
-              main_osm_control_i(C_MENU_NAMCO_DSWA_3) &
-              main_osm_control_i(C_MENU_NAMCO_DSWA_2) &
-              main_osm_control_i(C_MENU_NAMCO_DSWA_1) &
-              main_osm_control_i(C_MENU_NAMCO_DSWA_0);       
-   
-  dsw_2   <=  main_osm_control_i(C_MENU_MIDWAY_DSWB_7) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWB_6) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWB_5) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWB_4) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWB_3) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWB_2) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWB_1) &
-              main_osm_control_i(C_MENU_MIDWAY_DSWB_0)  when main_osm_control_i(C_MENU_MIDWAY) = '1' else
-                    
-              main_osm_control_i(C_MENU_NAMCO_DSWB_7) &
-              main_osm_control_i(C_MENU_NAMCO_DSWB_6) &
-              main_osm_control_i(C_MENU_NAMCO_DSWB_5) &
-              main_osm_control_i(C_MENU_NAMCO_DSWB_4) &
-              main_osm_control_i(C_MENU_NAMCO_DSWB_3) &
-              main_osm_control_i(C_MENU_NAMCO_DSWB_2) &
-              main_osm_control_i(C_MENU_NAMCO_DSWB_1) &
-              main_osm_control_i(C_MENU_NAMCO_DSWB_0);   
-   
-            
    ---------------------------------------------------------------------------------------------
    -- main_clk (MiSTer core's clock)
    ---------------------------------------------------------------------------------------------
@@ -398,13 +336,12 @@ begin
          
       )
       port map (
-         --clk_6m_o             => clk_6m,
          clk_main_i           => main_clk,
          reset_soft_i         => main_reset_core_i,
          reset_hard_i         => main_reset_m2m_i,
          pause_i              => main_pause_core_i and main_osm_control_i(C_MENU_OSMPAUSE),
          dim_video_o          => dim_video,
-         clk_main_speed_i     => CORE_CLK_SPEED, -- should be 4Mhz and 12Mhz
+         clk_main_speed_i     => CORE_CLK_SPEED,
          
          -- Video output
          -- This is PAL 720x576 @ 50 Hz (pixel clock 27 MHz), but synchronized to main_clk (54 MHz).
@@ -452,9 +389,9 @@ begin
          dsw_2_i              => dsw_1
       ); -- i_main
 
-    process (video_clk) -- 48 MHz
+    process (video_clk_o) -- 48 MHz
     begin
-        if rising_edge(video_clk) then
+        if rising_edge(video_clk_o) then
             video_ce       <= '0';
             video_ce_ovl_o <= '0';
 
@@ -477,7 +414,7 @@ begin
                 video_blue  <= main_video_blue  & main_video_blue;
             end if;
 
-            video_hs     <= main_video_hs;
+            video_hs     <= not main_video_hs;
             video_vs     <= main_video_vs;
             video_hblank <= main_video_hblank;
             video_vblank <= main_video_vblank;
@@ -578,7 +515,7 @@ begin
     i_screen_rotate : entity work.screen_rotate
        port map (
           --inputs
-          CLK_VIDEO      => video_clk,
+          CLK_VIDEO      => video_clk_o,
           CE_PIXEL       => video_ce,
           VGA_R          => video_red,
           VGA_G          => video_green,
@@ -593,7 +530,7 @@ begin
           FB_LL          => '0',
           -- output to screen_buffer
           video_rotated  => open,
-          DDRAM_CLK      => video_clk,
+          DDRAM_CLK      => video_clk_o,
           DDRAM_BUSY     => '0',
           DDRAM_BURSTCNT => open,
           DDRAM_ADDR     => ddram_addr,
@@ -616,11 +553,11 @@ begin
       )
       
       port map (
-         ddram_clk_i      => video_clk,
+         ddram_clk_i      => video_clk_o,
          ddram_addr_i     => ddram_addr(14 downto 0) & ddram_be(7),
          ddram_din_i      => ddram_data(31 downto 0),
          ddram_we_i       => ddram_we,
-         video_clk_i      => video_clk,
+         video_clk_i      => video_clk_o,
          video_ce_i       => video_ce,
          video_red_o      => video_rot_red,
          video_green_o    => video_rot_green,

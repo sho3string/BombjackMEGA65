@@ -19,7 +19,6 @@ entity main is
    );
    port (
       
-      --clk_6m_o                : out std_logic;
       clk_main_i              : in  std_logic;
       reset_soft_i            : in  std_logic;
       reset_hard_i            : in  std_logic;
@@ -95,7 +94,6 @@ signal forced_scandoubler: std_logic;
 --signal no_rotate         : std_logic := status(2) OR direct_video;
 signal gamma_bus         : std_logic_vector(21 downto 0);
 signal audio             : std_logic_vector(7 downto 0);
-signal clk_6m            : std_logic;
 
 -- I/O board button press simulation ( active high )
 -- b[1]: user button
@@ -135,13 +133,12 @@ constant m65_help          : integer := 67; --Help key
 
 begin
    
-    --audio_left_o  <= signed(audio) & signed(audio);
-    --audio_right_o <= audio_left_o;
+    --audio left
     audio_left_o(15) <= not audio(7);
     audio_left_o(14 downto 8) <= signed(audio(6 downto 0));
     audio_left_o(7) <= audio(7);
     audio_left_o(6 downto 0) <= signed(audio(6 downto 0));
-    -- audio_right_o <= audio_left_o
+    --audio right
     audio_right_o(15) <= not audio(7);
     audio_right_o(14 downto 8) <= signed(audio(6 downto 0));
     audio_right_o(7) <= audio(7);
@@ -157,7 +154,7 @@ begin
     port map (
     
     clk_48M    => clk_main_i,
-    clk_6M     => clk_6m,
+    clk_6M     => open,
     reset      => reset,
     
     VGA_R      => video_red_o,

@@ -1,14 +1,12 @@
 -------------------------------------------------------------------------------------------------------------
--- Galaga Arcade Core for the MEGA65 
+-- Bombjack Arcade Core for the MEGA65 
 --
 -- Clock Generator using the Xilinx specific MMCME2_ADV:
 --
--- The MiSTer Galaga core needs these clocks:
+-- The MiSTer Bombjack core needs these clocks:
+--    48 MHz clock
 --
---    18 MHz main clock
---    48 MHz video clock
---
--- Galaga port done by Samuel P ( Muse ) in 2023
+-- Bombjack port done by Samuel P ( Muse ) in 2023
 -- MiSTer2MEGA65 done by sy2002 and MJoergen in 2022 and licensed under GPL v3
 -------------------------------------------------------------------------------------------------------------
 
@@ -26,14 +24,9 @@ entity clk is
       sys_clk_i       : in  std_logic;   -- expects 100 MHz
       sys_rstn_i      : in  std_logic;   -- Asynchronous, asserted low
 
-      main_clk_o      : out std_logic;   -- Galaga's 18 MHz main clock
-      main_rst_o      : out std_logic;   -- Galaga's reset, synchronized
+      main_clk_o      : out std_logic;   -- 8 MHz main clock
+      main_rst_o      : out std_logic    -- reset, synchronized
       
-      video_clk_o     : out std_logic;   -- video clock 48 MHz
-      video_rst_o     : out std_logic;    --video reset, synchronized
-      
-      clk_6m_o        : out std_logic;   -- 6Mhz
-      clk_6m_rst_o    : out std_logic    -- 6Mhz reset
    );
 end entity clk;
 
@@ -67,22 +60,12 @@ begin
          CLKOUT0_DIVIDE_F     => 15.000,     -- 720 MHz / 15.000 = 48 MHz
          CLKOUT0_PHASE        => 0.000,
          CLKOUT0_DUTY_CYCLE   => 0.500,
-         CLKOUT0_USE_FINE_PS  => FALSE,
-         CLKOUT1_DIVIDE       => 15,         -- 720 MHz /  15 = 48 MHz
-         CLKOUT1_PHASE        => 0.000,
-         CLKOUT1_DUTY_CYCLE   => 0.500,
-         CLKOUT1_USE_FINE_PS  => FALSE,
-         CLKOUT2_DIVIDE       => 120,         -- 720 MHz / 120 = 6 MHz
-         CLKOUT2_PHASE        => 0.000,
-         CLKOUT2_DUTY_CYCLE   => 0.500,
-         CLKOUT2_USE_FINE_PS  => FALSE                  
+         CLKOUT0_USE_FINE_PS  => FALSE             
       )
       port map (
          -- Output clocks
          CLKFBOUT            => clkfb_main_mmcm,
          CLKOUT0             => main_clk_mmcm,
-         CLKOUT1             => video_clk_mmcm,
-         CLKOUT2             => clk_6m_mmcm,
          -- Input clock control
          CLKFBIN             => clkfb_main,
          CLKIN1              => sys_clk_i,
@@ -125,18 +108,6 @@ begin
          I => main_clk_mmcm,
          O => main_clk_o
       );
-      
-   video_clk_bufg : BUFG
-      port map (
-         I => video_clk_mmcm,
-         O => video_clk_o
-      );   
-      
-   clk_6m_bufg : BUFG
-      port map (
-         I => clk_6m_mmcm,
-         O => clk_6m_o
-      );   
 
    -------------------------------------
    -- Reset generation
@@ -152,30 +123,6 @@ begin
          dest_clk  => main_clk_o,       -- 1-bit input: Destination clock.
          dest_arst => main_rst_o        -- 1-bit output: src_rst synchronized to the destination clock domain.
                                         -- This output is registered.
-      );
-      
-   i_xpm_cdc_async_rst_video : xpm_cdc_async_rst
-      generic map (
-         RST_ACTIVE_HIGH => 1,
-         DEST_SYNC_FF    => 10
-      )
-      port map (
-         src_arst  => not (main_locked and sys_rstn_i),   -- 1-bit input: Source reset signal.
-         dest_clk  => video_clk_o,       -- 1-bit input: Destination clock.
-         dest_arst => video_rst_o        -- 1-bit output: src_rst synchronized to the destination clock domain.
-                                         -- This output is registered.
-      );
-      
-   i_xpm_cdc_async_rst_6m : xpm_cdc_async_rst
-      generic map (
-         RST_ACTIVE_HIGH => 1,
-         DEST_SYNC_FF    => 10
-      )
-      port map (
-         src_arst  => not (main_locked and sys_rstn_i),   -- 1-bit input: Source reset signal.
-         dest_clk  => clk_6m_o,          -- 1-bit input: Destination clock.
-         dest_arst => clk_6m_rst_o       -- 1-bit output: src_rst synchronized to the destination clock domain.
-                                         -- This output is registered.
       );
       
 end architecture rtl;
