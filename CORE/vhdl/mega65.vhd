@@ -211,7 +211,6 @@ constant C_MENU_DSWA_7 : natural := 51;
 
 
 -- Bombjack specific video processing
-signal div          : std_logic_vector(2 downto 0);
 signal dim_video    : std_logic;
 signal dsw_1        : std_logic_vector(7 downto 0);
 signal dsw_2        : std_logic_vector(7 downto 0);
@@ -281,6 +280,14 @@ begin
    main_power_led_col_o   <= x"00FF00";
    main_drive_led_o       <= '0';
    main_drive_led_col_o   <= x"00FF00"; 
+   
+   video_ce_ovl_o <= '1';
+   video_hs     <= not main_video_hs;
+   video_vs     <= not main_video_vs;
+   video_hblank <= main_video_hblank;
+   video_vblank <= main_video_vblank;
+   video_de     <= not (main_video_hblank or main_video_vblank);
+
 
    -- MMCME2_ADV clock generators:
    clk_gen : entity work.clk
@@ -350,7 +357,7 @@ begin
          
          -- Video output
          -- This is PAL 720x576 @ 50 Hz (pixel clock 27 MHz), but synchronized to main_clk (54 MHz).
-         video_ce_o           => open,
+         video_ce_o           => video_ce,
          video_ce_ovl_o       => open,
          video_red_o          => main_video_red,
          video_green_o        => main_video_green,
@@ -394,37 +401,17 @@ begin
          dsw_2_i              => dsw_1
       ); -- i_main
 
-    process (video_clk_o) -- 48 MHz
+    p_handle_dim : process(all)
     begin
-        if rising_edge(video_clk_o) then
-            video_ce       <= '0';
-            video_ce_ovl_o <= '0';
-
-            div <= std_logic_vector(unsigned(div) + 1);
-            if div="000" then
-               video_ce <= '1'; -- 6 MHz
-            end if;
-            if div(0) = '1' then
-               video_ce_ovl_o <= '1'; -- 24 MHz
-            end if;
-
             if dim_video = '1' then
                 video_red   <= "0" & main_video_red   & main_video_red(3 downto 1);
                 video_green <= "0" & main_video_green & main_video_green(3 downto 1);
-                video_blue  <= "0" & main_video_blue  & main_video_blue (3 downto 1);
-                
+                video_blue  <= "0" & main_video_blue  & main_video_blue (3 downto 1);                
             else
                 video_red   <= main_video_red   & main_video_red;
                 video_green <= main_video_green & main_video_green;
                 video_blue  <= main_video_blue  & main_video_blue;
             end if;
-
-            video_hs     <= not main_video_hs;
-            video_vs     <= not main_video_vs;
-            video_hblank <= main_video_hblank;
-            video_vblank <= main_video_vblank;
-            video_de     <= not (main_video_hblank or main_video_vblank);
-        end if;
     end process;
     
     p_select_video_signals : process(video_rot90_flag)
@@ -488,34 +475,6 @@ begin
     -- Nevertheless, on my VGA monitor, this video signal is recognized as
     -- 720x288 @ 50Hz.
     
-    /*
-    i_arcade_video : entity work.arcade_video
-    generic map (
-        WIDTH => 270,   -- screen width in pixels ( ROT90 )
-        DW    => 8,     -- each character is 8 pixels x 8 pixels
-        GAMMA => 0      -- @TODO: Deactivated to start with; we might need to reactivate later
-    )
-    port map (
-        clk_video_i        => video_clk,             -- video clock 48 MHz
-        ce_pix             => video_ce,
-        RGB_in             => rgb_out,
-        HBlank             => video_hblank,
-        VBlank             => video_vblank,
-        HSync              => video_hs,
-        VSync              => video_vs,
-        CLK_VIDEO_o        => video_clk_o,
-        CE_PIXEL           => video_ce_o,
-        VGA_R              => video_red_o,
-        VGA_G              => video_green_o,
-        VGA_B              => video_blue_o,
-        VGA_HS             => video_hs_o,
-        VGA_VS             => video_vs_o,
-        VGA_DE             => video_de,
-        VGA_SL             => open,                  -- @TODO: need to handle later
-        fx                 => "000",
-        forced_scandoubler => '0',
-        gamma_bus          => "000000000000000000000"
-    ); -- i_arcade_video */
 
     i_screen_rotate : entity work.screen_rotate
        port map (

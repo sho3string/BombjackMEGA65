@@ -154,7 +154,7 @@ begin
     port map (
     
     clk_48M    => clk_main_i,
-    clk_6M     => open,
+    clk_6M     => video_ce_o,
     reset      => reset,
     
     VGA_R      => video_red_o,
