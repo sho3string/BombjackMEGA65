@@ -13,6 +13,7 @@ use ieee.numeric_std.all;
 library work;
 use work.video_modes_pkg.all;
 
+
 entity main is
    generic (
       G_VDNUM                 : natural                     -- amount of virtual drives
@@ -148,13 +149,12 @@ begin
     options(0) <= osm_control_i(C_MENU_OSMPAUSE);
     options(1) <= osm_control_i(C_MENU_OSMDIM);
     flip_screen <= osm_control_i(C_MENU_FLIP);
-    
 
     i_bombjack_top : entity work.bombjack_top
     port map (
     
     clk_48M    => clk_main_i,
-    clk_6M     => video_ce_o,
+    clk_6M     => open,
     reset      => reset,
     
     VGA_R      => video_red_o,
@@ -248,4 +248,6 @@ begin
       ); -- i_keyboard
 
 end architecture synthesis;
+
+
 
