@@ -545,8 +545,8 @@ begin
    i_frame_buffer : entity work.frame_buffer
       generic map (
          G_ADDR_WIDTH => 16,
-         G_H_LEFT     => 48,
-         G_H_RIGHT    => 224+48,
+         G_H_LEFT     => 46,
+         G_H_RIGHT    => 228+46, -- (320-228)/2 = 46 left & right
          G_VIDEO_MODE => C_320_288_50
       )
       
@@ -632,8 +632,7 @@ begin
     
      
       case qnice_dev_id_i is
-         
-         
+
          when C_DEV_BJ_CPU1_ROM1 =>
               qnice_dn_wr   <= qnice_dev_ce_i and qnice_dev_we_i;
               qnice_dn_addr <= "1000" & qnice_dev_addr_i(12 downto 0);    --ROM_1J_cs <= '1' when dn_addr(16 downto 13) = X"8" else '0';
