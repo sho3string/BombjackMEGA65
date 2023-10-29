@@ -13,14 +13,14 @@ Parts of BombjackMEGA65 are licensed under other Free-software licenses as descr
 BomjackMEGA65:
 --------------
 
-  BombjackMEGA65is a port of Arcade-Galaga_MiSTer
+  BombjackMEGA65is a port of Arcade-Bombjack_MiSTer
       done by the MiSTer Development Team which is based on Alex's original implementation
       Bomb Jack implementation. Author: Alex: http://papilio.cc/index.php?n=Playground.BombJack
       Google code SVN Repository: https://code.google.com/archive/p/bombjack-papilioplus-fpga/
       GitHub Repository: https://github.com/MiSTer-devel/Arcade-Galaga_MiSTer
       Contributors:
       * Alex,alanswx,sorgelig,JimmyStones,MikeS11,hubertbanas
-      *misteraddons,blackwine,SerErris,eubrunosilva
+      * misteraddons,blackwine,SerErris,eubrunosilva
   
 
 
