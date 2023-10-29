@@ -124,9 +124,11 @@ constant m65_5             : integer := 16; --Insert coin 1
 constant m65_6             : integer := 19; --Insert coin 2
 
 -- Offer some keyboard controls in addition to Joy 1 Controls
-constant m65_a             : integer := 10; --Player left
-constant m65_d             : integer := 18; --Player right
-constant m65_up_crsr       : integer := 73; --Player fire
+constant m65_up_crsr       : integer := 73; --Player up
+constant m65_vert_crsr     : integer := 7;  --Player down
+constant m65_left_crsr     : integer := 74; --Player left
+constant m65_horz_crsr     : integer := 2;  --Player right
+constant m65_left_shift    : integer := 15; --Fire
 
 -- Pause, credit button & test mode
 constant m65_p             : integer := 41; --Pause button
@@ -165,28 +167,26 @@ begin
     VGA_VS     => video_vs_o,
     O_HBLANK   => video_hblank_o,
     O_VBLANK   => video_vblank_o,
-    
     audio      => audio,
-    
     p1_coin    => not keyboard_n(m65_5),
     p2_coin    => not keyboard_n(m65_6),
     p1_start   => not keyboard_n(m65_1),
     p2_start   => not keyboard_n(m65_2),
-    p1_up      => not joy_1_up_n_i,
-    p1_down    => not joy_1_down_n_i,
-    p1_left    => not joy_1_left_n_i or not keyboard_n(m65_a),
-    p1_right   => not joy_1_right_n_i or not keyboard_n(m65_d),
-    p1_jump    => not joy_1_fire_n_i or not keyboard_n(m65_up_crsr),
+    p1_up      => not joy_1_up_n_i or not keyboard_n(m65_up_crsr),
+    p1_down    => not joy_1_down_n_i or not keyboard_n(m65_vert_crsr),
+    p1_left    => not joy_1_left_n_i or not keyboard_n(m65_left_crsr),
+    p1_right   => not joy_1_right_n_i or not keyboard_n(m65_horz_crsr),
+    p1_jump    => not joy_1_fire_n_i or not keyboard_n(m65_left_shift),
     -- player 2 joystick is only active in cocktail/table mode.
-    p2_up      => not joy_2_up_n_i,
-    p2_down    => not joy_2_down_n_i,
-    p2_left    => not joy_2_left_n_i,
-    p2_right   => not joy_2_right_n_i,
-    p2_jump    => not joy_2_fire_n_i,
+    p2_up      => not joy_2_up_n_i or not keyboard_n(m65_up_crsr),
+    p2_down    => not joy_2_down_n_i or not keyboard_n(m65_vert_crsr),
+    p2_left    => not joy_2_left_n_i or not keyboard_n(m65_left_crsr),
+    p2_right   => not joy_2_right_n_i or not keyboard_n(m65_horz_crsr),
+    p2_jump    => not joy_2_fire_n_i or not keyboard_n(m65_left_shift),
     flip_screen => flip_screen,
     
-    SW_DEMOSOUNDS => not dsw_1_i(7),
-    SW_CABINET    => not dsw_1_I(6),
+    SW_DEMOSOUNDS => dsw_1_i(7),
+    SW_CABINET    => dsw_1_i(6),
     SW_LIVES      => dsw_1_i(5 downto 4),
     SW_ENEMIES    => dsw_2_i(6 downto 5),
     SW_BIRDSPEED  => dsw_2_i(4 downto 3),

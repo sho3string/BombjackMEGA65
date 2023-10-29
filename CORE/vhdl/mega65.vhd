@@ -189,25 +189,25 @@ constant C_MENU_VGA_STD       : natural := 23;
 constant C_MENU_VGA_15KHZHSVS : natural := 27;
 constant C_MENU_VGA_15KHZCS   : natural := 28;
 
--- Dipswitch B
-constant C_MENU_DSWB_0 : natural := 35;
-constant C_MENU_DSWB_1 : natural := 36;
-constant C_MENU_DSWB_2 : natural := 37;
-constant C_MENU_DSWB_3 : natural := 38;
-constant C_MENU_DSWB_4 : natural := 39;
-constant C_MENU_DSWB_5 : natural := 40;
-constant C_MENU_DSWB_6 : natural := 41;
-constant C_MENU_DSWB_7 : natural := 42;
+-- Dipswitch 2
+constant C_MENU_DSWA_0 : natural := 35;
+constant C_MENU_DSWA_1 : natural := 36;
+constant C_MENU_DSWA_2 : natural := 37;
+constant C_MENU_DSWA_3 : natural := 38;
+constant C_MENU_DSWA_4 : natural := 39;
+constant C_MENU_DSWA_5 : natural := 40;
+constant C_MENU_DSWA_6 : natural := 41;
+constant C_MENU_DSWA_7 : natural := 42;
 
--- Dipswitch A
-constant C_MENU_DSWA_0 : natural := 44;
-constant C_MENU_DSWA_1 : natural := 45;
-constant C_MENU_DSWA_2 : natural := 46;
-constant C_MENU_DSWA_3 : natural := 47;
-constant C_MENU_DSWA_4 : natural := 48;
-constant C_MENU_DSWA_5 : natural := 49;
-constant C_MENU_DSWA_6 : natural := 50;
-constant C_MENU_DSWA_7 : natural := 51;
+-- Dipswitch 1
+constant C_MENU_DSWB_0 : natural := 44;
+constant C_MENU_DSWB_1 : natural := 45;
+constant C_MENU_DSWB_2 : natural := 46;
+constant C_MENU_DSWB_3 : natural := 47;
+constant C_MENU_DSWB_4 : natural := 48;
+constant C_MENU_DSWB_5 : natural := 49;
+constant C_MENU_DSWB_6 : natural := 50;
+constant C_MENU_DSWB_7 : natural := 51;
 
 
 -- Bombjack specific video processing
@@ -243,6 +243,11 @@ signal ddram_data       : std_logic_vector(63 downto 0);
 signal ddram_be         : std_logic_vector( 7 downto 0);
 signal ddram_we         : std_logic;
 
+signal ddram_addr_int   : std_logic_vector(28 downto 0);
+signal ddram_data_int   : std_logic_vector(63 downto 0);
+signal ddram_be_int     : std_logic_vector( 7 downto 0);
+signal ddram_we_int     : std_logic;
+
 -- ROM devices for Bombjack
 signal qnice_dn_addr    : std_logic_vector(16 downto 0);
 signal qnice_dn_data    : std_logic_vector(7 downto 0);
@@ -257,7 +262,7 @@ constant C_320_288_50 : video_modes_t := (
    ASPECT      => "01",       -- aspect ratio: 01=4:3, 10=16:9: "01" for SVGA
    PIXEL_REP   => '0',        -- no pixel repetition
    H_PIXELS    => 320,        -- horizontal display width in pixels
-   V_PIXELS    => 288,        -- vertical display width in rows
+   V_PIXELS    => 270,        -- vertical display width in rows
    H_PULSE     => 28,         -- horizontal sync pulse width in pixels
    H_BP        => 28,         -- horizontal back porch width in pixels
    H_FP        => 8,          -- horizontal front porch width in pixels
@@ -267,30 +272,6 @@ constant C_320_288_50 : video_modes_t := (
    H_POL       => '1',        -- horizontal sync pulse polarity (1 = positive, 0 = negative)
    V_POL       => '1'         -- vertical sync pulse polarity (1 = positive, 0 = negative)
 );
-
-attribute mark_debug : string;
-attribute mark_debug of video_ce          : signal is "true";
-attribute mark_debug of video_red         : signal is "true";
-attribute mark_debug of video_green       : signal is "true";
-attribute mark_debug of video_blue        : signal is "true";
-attribute mark_debug of video_vs          : signal is "true";
-attribute mark_debug of video_hs          : signal is "true";
-attribute mark_debug of video_vblank      : signal is "true";
-attribute mark_debug of video_hblank      : signal is "true";
-attribute mark_debug of video_de          : signal is "true";
-attribute mark_debug of ddram_addr        : signal is "true";
-attribute mark_debug of ddram_data        : signal is "true";
-attribute mark_debug of ddram_be          : signal is "true";
-attribute mark_debug of ddram_we          : signal is "true";
-attribute mark_debug of video_ce_o        : signal is "true";
-attribute mark_debug of video_red_o       : signal is "true";
-attribute mark_debug of video_green_o     : signal is "true";
-attribute mark_debug of video_blue_o      : signal is "true";
-attribute mark_debug of video_hs_o        : signal is "true";
-attribute mark_debug of video_vs_o        : signal is "true";
---attribute mark_debug of video_de_o        : signal is "true";
-attribute mark_debug of video_hblank_o    : signal is "true";
-attribute mark_debug of video_vblank_o    : signal is "true";
 
 begin
 
@@ -410,8 +391,9 @@ begin
 
          osm_control_i        => main_osm_control_i,
          dsw_1_i              => dsw_1,
-         dsw_2_i              => dsw_1
+         dsw_2_i              => dsw_2
       ); -- i_main
+    
     
     process (main_clk) -- 48 MHz main clock
     begin
@@ -444,9 +426,22 @@ begin
             video_de     <= not (main_video_hblank or main_video_vblank);
         end if;
     end process;
+
+    p_clear_video_onrst : process(video_clk_o)
+    begin
+        if video_rst_o = '1' then
+           ddram_data_int <= (others => '0');
+           ddram_addr_int <= ddram_addr;
+           ddram_we_int   <= ddram_we;
+           ddram_be_int   <= ddram_be;
+         else
+           ddram_data_int <= ddram_data;
+           ddram_addr_int <= ddram_addr;
+           ddram_we_int   <= ddram_we;
+           ddram_be_int   <= ddram_be;
+         end if;
+    end process;
     
-    
-   
     
     p_select_video_signals : process(video_rot90_flag)
     begin
@@ -552,9 +547,9 @@ begin
       
       port map (
          ddram_clk_i      => video_clk_o,
-         ddram_addr_i     => ddram_addr(14 downto 0) & ddram_be(7),
-         ddram_din_i      => ddram_data(31 downto 0),
-         ddram_we_i       => ddram_we,
+         ddram_addr_i     => ddram_addr_int(14 downto 0) & ddram_be_int(7),
+         ddram_din_i      => ddram_data_int(31 downto 0),
+         ddram_we_i       => ddram_we_int,
          video_clk_i      => video_clk_o,
          video_ce_i       => video_ce,
          video_red_o      => video_rot_red,
