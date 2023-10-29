@@ -1,5 +1,5 @@
-Galaga for MEGA65 
-=================
+Bombjack for MEGA65 
+===================
 
 done in 2023 by:
 	* Muse       github.com/sho3string
@@ -17,7 +17,7 @@ BomjackMEGA65:
       done by the MiSTer Development Team which is based on Alex's original implementation
       Bomb Jack implementation. Author: Alex: http://papilio.cc/index.php?n=Playground.BombJack
       Google code SVN Repository: https://code.google.com/archive/p/bombjack-papilioplus-fpga/
-      GitHub Repository: https://github.com/MiSTer-devel/Arcade-Galaga_MiSTer
+      GitHub Repository: https://github.com/MiSTer-devel/Arcade-Bombjack_MiSTer
       Contributors:
       * Alex,alanswx,sorgelig,JimmyStones,MikeS11,hubertbanas
       * misteraddons,blackwine,SerErris,eubrunosilva
