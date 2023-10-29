@@ -1,27 +1,30 @@
 Galaga for MEGA65 
 =================
 
-done in 2023 by Muse
+done in 2023 by:
 	* Muse       github.com/sho3string
+special thanks to:
 	* sy2002     github.com/sy2002     www.sy2002.de
-    * MJoergen   github.com/MJoergen
+	* MJoergen   github.com/MJoergen
 
-GalagaMEGA65 is licensed under the terms of GNU/GPL v3, for more information please read the file LICENSE
-Parts of GalagaMEGA65 are licensed under other Free-software licenses as described in the source code
+BombjackMEGA65 is licensed under the terms of GNU/GPL v3, for more information please read the file LICENSE  
+Parts of BombjackMEGA65 are licensed under other Free-software licenses as described in the source code  
 
-GalagaMEGA65:
--------------
+BomjackMEGA65:
+--------------
 
-  GalagaMEGA65is a port of Arcade-Galaga_MiSTer
-      done by the MiSTer Development Team
-      Original GitHub Repository: https://github.com/MiSTer-devel/Arcade-Galaga_MiSTer
-      Significant contributors:
-      * sorgelig, blackwine & alanswx
-      * CONTRIBUTORS
-      * JimmyStones, MikeS11, hubertbanas, misteraddons, lagomorph, SerErris, eubrunosilva, wwark, MrX-8B & wesclemens
+  BombjackMEGA65is a port of Arcade-Galaga_MiSTer
+      done by the MiSTer Development Team which is based on Alex's original implementation
+      Bomb Jack implementation. Author: Alex: http://papilio.cc/index.php?n=Playground.BombJack
+      Google code SVN Repository: https://code.google.com/archive/p/bombjack-papilioplus-fpga/
+      GitHub Repository: https://github.com/MiSTer-devel/Arcade-Galaga_MiSTer
+      Contributors:
+      * Alex,alanswx,sorgelig,JimmyStones,MikeS11,hubertbanas
+      *misteraddons,blackwine,SerErris,eubrunosilva
+  
 
 
-Other than that and my own work, GalagaMEGA65 uses:
+Other than that and my own work, BombjackMEGA65 uses:
 ---------------------------------------------------
 
   * MiSTer2MEGA65 by The MiSTer2MEGA65 Development Team
