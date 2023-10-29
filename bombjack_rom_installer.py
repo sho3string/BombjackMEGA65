@@ -142,10 +142,15 @@ def main():
                     for filename in [EXPECTED_FILES[0],EXPECTED_FILES[1],EXPECTED_FILES[2],EXPECTED_FILES[3],EXPECTED_FILES[5]]:
                         print(f"Copying {filename} to output folder")
                         shutil.copy(os.path.join(temp_dir, filename), output_folder)
+                        
+                        
                     
-                    for filename in [EXPECTED_FILES[4]]:
-                        print(f"Copying {filename} as 13.1r to output folder")
-                        shutil.copy(os.path.join(temp_dir, filename), output_folder)
+                    with open(os.path.join(output_folder, "13.1r"), "wb") as rom:
+                        for part in [EXPECTED_FILES[4]]: 
+                            print(f"Copying {part} as 13.1r to output folder")
+                            with open(os.path.join(temp_dir, part), "rb") as f:
+                                rom.write(f.read())
+                    
                     
                     with open(os.path.join(output_folder, EXPECTED_FILES[6]), "wb") as rom:
                             for part in [EXPECTED_FILES[6], EXPECTED_FILES[6]]: 
