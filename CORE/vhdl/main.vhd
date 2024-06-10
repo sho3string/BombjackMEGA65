@@ -115,7 +115,7 @@ signal options          : std_logic_vector(1 downto 0);
 
 constant C_MENU_OSMPAUSE     : natural := 2;
 constant C_MENU_OSMDIM       : natural := 3;
-constant C_MENU_FLIP_JOYS    : natural := 3;
+constant C_MENU_FLIP_JOYS    : natural := 4;
 constant C_MENU_FLIP_SCRN    : natural := 9;
 
 
