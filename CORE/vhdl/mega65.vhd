@@ -178,7 +178,7 @@ constant C_MENU_OSMPAUSE      : natural := 2;
 constant C_MENU_OSMDIM        : natural := 3;
 constant C_FLIP_JOYS          : natural := 4;
 constant C_MENU_ROT90         : natural := 8;
-constant C_MENU_FLIP          : natural := 9;
+constant C_MENU_FLIP_SCRN     : natural := 9;
 constant C_MENU_CRT_EMULATION : natural := 10;
 constant C_MENU_HDMI_16_9_50  : natural := 14;
 constant C_MENU_HDMI_16_9_60  : natural := 15;
@@ -426,21 +426,22 @@ begin
             video_de     <= not (main_video_hblank or main_video_vblank);
         end if;
     end process;
-
-    p_clear_video_onrst : process(video_clk_o)
-    begin
-        if video_rst_o = '1' then
-           ddram_data_int <= (others => '0');
-           ddram_addr_int <= ddram_addr;
-           ddram_we_int   <= ddram_we;
-           ddram_be_int   <= ddram_be;
-         else
-           ddram_data_int <= ddram_data;
-           ddram_addr_int <= ddram_addr;
-           ddram_we_int   <= ddram_we;
-           ddram_be_int   <= ddram_be;
-         end if;
-    end process;
+    
+    i_clear_video_on_rst : entity work.ClearFramebuffer
+    port map
+    (
+        clk             => video_clk_o,
+        reset           => video_rst_o,
+        ddram_addr_i    => ddram_addr,
+        ddram_data_i    => ddram_data,
+        ddram_be_i      => ddram_be,
+        ddram_we_i      => ddram_we,
+        
+        ddram_addr_int_o    => ddram_addr_int,
+        ddram_data_int_o    => ddram_data_int,
+        ddram_be_int_o      => ddram_be_int,
+        ddram_we_int_o      => ddram_we_int
+    );
     
     
     p_select_video_signals : process(video_rot90_flag)
